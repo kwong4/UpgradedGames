@@ -1,5 +1,6 @@
 // Author: Kevin Wong
 
+#include <pthread.h>
 #include <stdio.h>
 #include <allegro.h>
 #include "math.h"
@@ -623,26 +624,6 @@ void update() {
 	
 	//Loop variable
 	int i;
-	
-	//Clear background
-	blit(background, buffer, 0, 0, 0, 0, WIDTH, HEIGHT);
-	
-	// Update bulelt if alive
-	for (i = 0; i < BULLET_CAP; i++) {
-    	if (bullets->get(i)->alive == 1) {
-    		updatebullet(i);
-		}
-    }
-        
-    // Update asteroid is alive, else respawn it
-    for (i = 0; i < ASTEROID_COUNT; i++) {
-    	if (asteroids->get(i)->alive == 1) {
-    		updateasteroid(i);
-    	}
-    	else {
-    		restart_asteroid(i);
-    	}
-    }
     
     // Status bar
     rectfill(buffer, 0, 0, WIDTH, 16, BLACK); 
@@ -945,6 +926,117 @@ void setupgame() {
 	}
 }
 
+//this thread updates asteroids
+void* thread0(void* data)
+{
+	// Loop variable
+	int i;
+	
+    //get this thread id
+    int my_thread_id = *((int*)data);
+
+    //thread's main loop
+    while(!done)
+    {
+        //lock the mutex to protect variables
+        if (pthread_mutex_lock(&threadsafe))
+            textout_ex(buffer,font,"ERROR: thread mutex was locked",0,0,WHITE,0);
+        
+        // Update asteroid is alive, else respawn it
+	    for (i = 0; i < ASTEROID_COUNT; i++) {
+	    	if (asteroids->get(i)->alive == 1) {
+	    		updateasteroid(i);
+	    	}
+	    	else {
+	    		restart_asteroid(i);
+	    	}
+	    }
+
+        //unlock the mutex
+        if (pthread_mutex_unlock(&threadsafe))
+            textout_ex(buffer,font,"ERROR: thread mutex unlock error",0,0,WHITE,0);
+
+        //slow down (this thread only!)
+    	rest(10);
+    }
+
+    // terminate the thread
+    pthread_exit(NULL);
+
+    return NULL;
+}
+
+//this thread updates bullets
+void* thread1(void* data)
+{
+	// Loop variable
+	int i;
+	
+    //get this thread id
+    int my_thread_id = *((int*)data);
+
+    //thread's main loop
+    while(!done)
+    {
+        //lock the mutex to protect variables
+        if (pthread_mutex_lock(&threadsafe))
+            textout_ex(buffer,font,"ERROR: thread mutex was locked",0,0,WHITE,0);
+        
+        // Update bullet if alive
+		for (i = 0; i < BULLET_CAP; i++) {
+	    	if (bullets->get(i)->alive == 1) {
+	    		updatebullet(i);
+			}
+	    }
+	    
+	    // Bullet cooldown timer
+		if (bullet_cooldown > 0) {
+			bullet_cooldown--;	
+		}
+
+        //unlock the mutex
+        if (pthread_mutex_unlock(&threadsafe))
+            textout_ex(buffer,font,"ERROR: thread mutex unlock error",0,0,WHITE,0);
+
+        //slow down (this thread only!)
+    	rest(10);
+    }
+
+    // terminate the thread
+    pthread_exit(NULL);
+
+    return NULL;
+}
+
+//this thread updates game ship and GUI
+void* thread2(void* data)
+{
+    //get this thread id
+    int my_thread_id = *((int*)data);
+
+    //thread's main loop
+    while(!done)
+    {
+        //lock the mutex to protect variables
+        if (pthread_mutex_lock(&threadsafe))
+            textout_ex(buffer,font,"ERROR: thread mutex was locked",0,0,WHITE,0);
+	    
+	    update();
+
+        //unlock the mutex
+        if (pthread_mutex_unlock(&threadsafe))
+            textout_ex(buffer,font,"ERROR: thread mutex unlock error",0,0,WHITE,0);
+
+        //slow down (this thread only!)
+    	rest(10);
+    }
+
+    // terminate the thread
+    pthread_exit(NULL);
+
+    return NULL;
+}
+
 int main(void)
 {
 	
@@ -963,14 +1055,27 @@ int main(void)
     //set video mode    
     set_color_depth(16);
     
+    //pthreads
+    pthread_t pthread0;
+    pthread_t pthread1;
+    pthread_t pthread2;
+    
+    int threadid0 = 0;
+    int threadid1 = 1;
+    int threadid2 = 2;
+    
     // Error variable
     int ret;
+    int id;
     
     ret = set_gfx_mode(MODE, WIDTH, HEIGHT, 0, 0);
     if (ret != 0) {
 	    allegro_message(allegro_error);
 	    return 0;
 	}
+    
+    //create a new thread mutex to protect variables
+	pthread_mutex_t threadsafe = PTHREAD_MUTEX_INITIALIZER;
     
     // Setup datafiles
     // load the datfile
@@ -991,8 +1096,20 @@ int main(void)
 	// Clear Screen
     rectfill(screen, 0, 0, WIDTH, HEIGHT, BLACK);
     
+    //create the thread for Asteroid handling
+    id = pthread_create(&pthread0, NULL, thread0, (void*)&threadid0);
+
+    //create the thread for Bullet handling
+    id = pthread_create(&pthread1, NULL, thread1, (void*)&threadid1);
+    
+    //create the thread for game ship and GUI handling
+    id = pthread_create(&pthread2, NULL, thread2, (void*)&threadid2);
+    
     // Game loop
     while(!gameover) {
+    	
+    	//lock the mutex to protect double buffer
+        pthread_mutex_lock(&threadsafe);
     	
     	//refresh the screen
 	    acquire_screen();
@@ -1004,17 +1121,20 @@ int main(void)
             getinput();
 		}
 		
-		// Update game
-		update();
+		//Clear background
+		blit(background, buffer, 0, 0, 0, 0, WIDTH, HEIGHT);
 		
-		// Bullet cooldown timer
-		if (bullet_cooldown > 0) {
-			bullet_cooldown--;	
-		}
+		//unlock the mutex
+        pthread_mutex_unlock(&threadsafe);
 		
-		// Slow down game
-	    rest(10);
     }
+    
+    //tell threads it's time to quit
+    done++;
+    rest(100);
+    
+    //kill the mutex (thread protection)
+    pthread_mutex_destroy(&threadsafe);
     
     // Clear Screen
     rectfill(screen, 0, 0, WIDTH, HEIGHT, BLACK);

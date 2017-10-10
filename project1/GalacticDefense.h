@@ -44,6 +44,7 @@ int max_selection = 2;
 int active_pulse = 0;
 int pulse_cooldown = 0;
 int sound = 1;
+int done = 0;
 
 //create a back buffer
 BITMAP *title;
@@ -59,6 +60,7 @@ sprite *spaceship;
 spritehandler *bullets;
 spritehandler *asteroids;
 DATAFILE *data;
+pthread_mutex_t threadsafe;
 
 // Print in correct format
 void print_formated(const char* text, int x1, int x2, int y, int col, int bg);
