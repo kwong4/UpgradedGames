@@ -9,6 +9,9 @@
 #include "spritehandler.h"
 #include "defines.h"
 
+//create a new thread mutex to protect variables
+pthread_mutex_t threadsafe = PTHREAD_MUTEX_INITIALIZER;
+
 // Print in correct format
 void print_formated(const char* text, int x1, int x2, int y, int col, int bg) {
 	
@@ -939,8 +942,7 @@ void* thread0(void* data)
     while(!done)
     {
         //lock the mutex to protect variables
-        if (pthread_mutex_lock(&threadsafe))
-            textout_ex(buffer,font,"ERROR: thread mutex was locked",0,0,WHITE,0);
+        pthread_mutex_lock(&threadsafe);
         
         // Update asteroid is alive, else respawn it
 	    for (i = 0; i < ASTEROID_COUNT; i++) {
@@ -953,8 +955,7 @@ void* thread0(void* data)
 	    }
 
         //unlock the mutex
-        if (pthread_mutex_unlock(&threadsafe))
-            textout_ex(buffer,font,"ERROR: thread mutex unlock error",0,0,WHITE,0);
+        pthread_mutex_unlock(&threadsafe);
 
         //slow down (this thread only!)
     	rest(10);
@@ -979,8 +980,7 @@ void* thread1(void* data)
     while(!done)
     {
         //lock the mutex to protect variables
-        if (pthread_mutex_lock(&threadsafe))
-            textout_ex(buffer,font,"ERROR: thread mutex was locked",0,0,WHITE,0);
+        pthread_mutex_lock(&threadsafe);
         
         // Update bullet if alive
 		for (i = 0; i < BULLET_CAP; i++) {
@@ -995,8 +995,7 @@ void* thread1(void* data)
 		}
 
         //unlock the mutex
-        if (pthread_mutex_unlock(&threadsafe))
-            textout_ex(buffer,font,"ERROR: thread mutex unlock error",0,0,WHITE,0);
+        pthread_mutex_unlock(&threadsafe);
 
         //slow down (this thread only!)
     	rest(10);
@@ -1018,14 +1017,12 @@ void* thread2(void* data)
     while(!done)
     {
         //lock the mutex to protect variables
-        if (pthread_mutex_lock(&threadsafe))
-            textout_ex(buffer,font,"ERROR: thread mutex was locked",0,0,WHITE,0);
+        pthread_mutex_lock(&threadsafe);
 	    
 	    update();
 
         //unlock the mutex
-        if (pthread_mutex_unlock(&threadsafe))
-            textout_ex(buffer,font,"ERROR: thread mutex unlock error",0,0,WHITE,0);
+		pthread_mutex_unlock(&threadsafe);
 
         //slow down (this thread only!)
     	rest(10);
@@ -1073,9 +1070,6 @@ int main(void)
 	    allegro_message(allegro_error);
 	    return 0;
 	}
-    
-    //create a new thread mutex to protect variables
-	pthread_mutex_t threadsafe = PTHREAD_MUTEX_INITIALIZER;
     
     // Setup datafiles
     // load the datfile

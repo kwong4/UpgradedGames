@@ -60,7 +60,6 @@ sprite *spaceship;
 spritehandler *bullets;
 spritehandler *asteroids;
 DATAFILE *data;
-pthread_mutex_t threadsafe;
 
 // Print in correct format
 void print_formated(const char* text, int x1, int x2, int y, int col, int bg);
