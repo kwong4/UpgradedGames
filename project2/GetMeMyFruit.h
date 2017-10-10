@@ -15,29 +15,6 @@
 #define GREEN makecol(80,226,83)
 #define RED makecol(255,47,63)
 #define BLUE makecol(70,101,200)
-#define PLAYER_SPRITE_WAIT1 "sprites/character_wait1.bmp"
-#define PLAYER_SPRITE_WAIT2 "sprites/character_wait2.bmp"
-#define PLAYER_SPRITE_WALK1 "sprites/character_walk1.bmp"
-#define PLAYER_SPRITE_WALK2 "sprites/character_walk2.bmp"
-#define PLAYER_SPRITE_JUMP "sprites/character_jump.bmp"
-#define ORANGE_SPRITE "sprites/orange.bmp"
-#define WATERMELON_SPRITE "sprites/watermelon.bmp"
-#define APPLE_SPRITE "sprites/apple.bmp"
-#define BERRIES_SPRITE "sprites/berries.bmp"
-#define GAME_WORLD "sprites/GameWorld.FMP"
-#define GETMEMYFRUIT "sprites/GetMeMyFruit.bmp"
-#define BACKGROUND_SOUND "sounds/background.wav"
-#define CLICK_SOUND "sounds/click.wav"
-#define SPLASH_SOUND "sounds/splash.wav"
-#define JUMP_SOUND "sounds/boing.wav"
-#define FRUIT_COLLECT_SOUND "sounds/fanfare.wav"
-#define ENEMY_SOUND "sounds/pluck.wav"
-#define GAME_OVER "sounds/shut_off.wav"
-#define GAME_WIN "sounds/yay.wav"
-#define ENEMY1 "sprites/enemies1.bmp"
-#define ENEMY2 "sprites/enemies2.bmp"
-#define ENEMY3 "sprites/enemies3.bmp"
-#define ENEMY4 "sprites/enemies4.bmp"
 #define ENEMY1_START_X 3 * 16
 #define ENEMY1_START_Y 27 * 16
 #define ENEMY1_END_X 31 * 16
@@ -67,6 +44,7 @@
 #define TOP_BUFFER 10
 #define FRUIT_CONSTANT 20
 #define COOLDOWN 20
+#define GAME_WORLD "GameWorld.FMP"
 
 //define the sprite structure
 typedef struct SPRITE
@@ -175,5 +153,6 @@ int hardmode = 0;
 int fruit_collected = 0;
 int sound_cooldown = 0;
 int menu_cooldown = 0;
+DATAFILE *data;
 
 #endif

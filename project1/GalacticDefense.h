@@ -29,23 +29,9 @@
 #define LARGEASTEROID_COUNT 3
 #define ASTEROID_COUNT SMALLASTEROID_COUNT + LARGEASTEROID_COUNT
 #define ASTEROID_SPEED 
-
-#define SPACESHIP_SPRITE "sprites/Spaceship.bmp"
-#define BACKGROUND_SPRITE "sprites/Background.bmp"
-#define BULLET_SPRITE "sprites/Bullet.bmp"
-#define SMALL_ASTEROID_SPRITE "sprites/Asteroid1.bmp"
-#define LARGE_ASTEROID_SPRITE "sprites/Asteroid20.bmp"
-#define LARGE_ASTEROID_SPRITE2 "sprites/Asteroid21.bmp"
-#define LARGE_ASTEROID_SPRITE3 "sprites/Asteroid22.bmp"
-#define BACKGROUND_SOUND "sounds/background.wav"
-#define CLICK_SOUND "sounds/click.wav"
-#define BULLET_SOUND "sounds/bullet.wav"
-#define PULSE_SOUND "sounds/pulse.wav"
-#define EXPLOSION "sprites/Explosion.bmp"
-#define GALATICDEFENSE "sprites/GalaticDefense.bmp"
-#define PULSE "sprites/Pulse.bmp"
 #define PULSE_DURATION 10
 #define PULSE_COOLDOWN 100
+#define DATA_FILE "data.dat"
 
 // Gameover variable
 int gameover = 0;
@@ -72,5 +58,81 @@ sprite *pulse;
 sprite *spaceship;
 spritehandler *bullets;
 spritehandler *asteroids;
+DATAFILE *data;
+
+// Print in correct format
+void print_formated(const char* text, int x1, int x2, int y, int col, int bg);
+
+// Print insturction screen
+void instructions();
+
+// Get Game menu input
+int getmenuinput();
+
+// Print the welcome screen menu
+void welcome_screen();
+
+// Draw initial start screen instructions
+void draw_startscreen();
+
+//calculate X movement value based on direction angle
+double calcAngleMoveX(int angle);
+
+//calculate Y movement value based on direction angle
+double calcAngleMoveY(int angle);
+
+// Warp sprite if reaches end of screen
+void warpsprite(sprite *spr);
+
+// Respawn asteroid if destoryed
+void restart_asteroid(int num);
+
+// Check collisions with other asteroids. Only in hard mode
+void checkcollisions_asteroid(int num);
+
+// Check if bullet collided with any asteroids
+void checkcollisions_bullet(int num);
+
+// Check collisions with ship
+void checkcollisions_ship();
+
+// Active pulse feature
+void activate_pulse();
+
+// Used to move ship forward or backwards
+void thrusters(int dir);
+
+// Turn ship left
+void turnleft();
+
+// Turn ship right
+void turnright();
+
+// Fire weapon
+void fireweapon();
+
+// Update bullet
+void updatebullet(int num);
+
+// Update asteroid
+void updateasteroid(int num);
+
+// Update health bar
+void updatehealth();
+
+// Update pulse cooldown bar
+void updatepulse();
+
+// Main update function
+void update();
+
+// Get game input from user
+void getinput();
+
+// Setup initial files
+void setupscreen();
+
+// Setup game
+void setupgame();
 
 #endif

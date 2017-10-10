@@ -30,9 +30,9 @@ public:
 public:
 	sprite();
 	~sprite();
-	int load(char *filename);
-	int load2(char *filename);
-	int load3(char *filename);
+	int load(BITMAP * bitmap_image);
+	int load2(BITMAP * bitmap_image);
+	int load3(BITMAP * bitmap_image);
 	void draw(BITMAP *dest);
 	void drawframe(BITMAP *dest);
 	void updatePosition();

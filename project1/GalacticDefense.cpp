@@ -1,11 +1,12 @@
 // Author: Kevin Wong
 
 #include <stdio.h>
-#include "allegro.h"
+#include <allegro.h>
 #include "math.h"
 #include "sprite.h"
 #include "GalacticDefense.h"
 #include "spritehandler.h"
+#include "defines.h"
 
 // Print in correct format
 void print_formated(const char* text, int x1, int x2, int y, int col, int bg) {
@@ -746,34 +747,23 @@ void getinput() {
 
     //short delay after keypress        
     rest(20);
-}
+}	
 
 // Setup initial files
 void setupscreen() {
 	
-	// Error variable
-    int ret;
-	
-    //set video mode    
-    set_color_depth(desktop_color_depth());
-    ret = set_gfx_mode(MODE, WIDTH, HEIGHT, 0, 0);
-    if (ret != 0) {
-	    allegro_message(allegro_error);
-	    return;
-	}
-	
 	//load background buffer
-	title = load_bitmap(GALATICDEFENSE, NULL);
+	title = (BITMAP *) data[GALATICDEFENSE_BMP].dat;
 	if (!title) {
 		allegro_message("Error loading sprites");
 		return;
 	}
 	
 	// Load sound files
-	background_music = load_sample(BACKGROUND_SOUND);
-	click_sound = load_sample(CLICK_SOUND);
-	bullet_sound = load_sample(BULLET_SOUND);
-	pulse_sound = load_sample(PULSE_SOUND);
+	background_music = (SAMPLE *) data[BACKGROUND_WAV].dat;
+	click_sound = (SAMPLE *) data[CLICK_WAV].dat;
+	bullet_sound = (SAMPLE *) data[BULLET_WAV].dat;
+	pulse_sound = (SAMPLE *) data[PULSE_WAV].dat;
 	
 	//install a digital sound driver
     if (install_sound(DIGI_AUTODETECT, MIDI_NONE, "") != 0) {
@@ -803,17 +793,17 @@ void setupgame() {
 	play_sample(background_music, 128, 128, 1000, TRUE);
 
 	//Create a back buffer
-	buffer = create_bitmap(WIDTH,HEIGHT);
+	buffer = create_bitmap(WIDTH, HEIGHT);
 	
 	//load background buffer
-	background = load_bitmap(BACKGROUND_SPRITE, NULL);
+	background = (BITMAP *)data[BACKGROUND_BMP].dat;
 	
 	//load explosion bitmap
-	explosion = load_bitmap(EXPLOSION, NULL);
+	explosion = (BITMAP *)data[EXPLOSION_BMP].dat;
 	
 	//Create a spaceship sprite
 	spaceship = new sprite();
-	if (!spaceship->load(SPACESHIP_SPRITE) || !background || !explosion) {
+	if (!spaceship->load((BITMAP *) data[SPACESHIP_BMP].dat) || !background || !explosion) {
 		allegro_message("Error loading sprites");
 		return;
 	}
@@ -831,7 +821,7 @@ void setupgame() {
 	
 	// Set pulse variables
 	pulse = new sprite();
-	if (!pulse->load(PULSE)) {
+	if (!pulse->load((BITMAP *) data[PULSE_BMP].dat)) {
 		allegro_message("Error loading sprites");
 		return;
 	}
@@ -847,7 +837,7 @@ void setupgame() {
 	
 	for (i = 0; i < BULLET_CAP; i++) {
 		bullets->create();
-		bullets->get(i)->load(BULLET_SPRITE);
+		bullets->get(i)->load((BITMAP *) data[BULLET_BMP].dat);
 		bullets->get(i)->width = bullets->get(i)->image->w;
 		bullets->get(i)->height = bullets->get(i)->image->h;
 		bullets->get(i)->xdelay = 0;
@@ -862,7 +852,7 @@ void setupgame() {
 	// Small asteroids
 	for (i = 0; i < SMALLASTEROID_COUNT; i++) {
 		asteroids->create();
-		asteroids->get(i)->load(SMALL_ASTEROID_SPRITE);
+		asteroids->get(i)->load((BITMAP *) data[ASTEROID1_BMP].dat);
 		asteroids->get(i)->health = 1;
 		asteroids->get(i)->width = asteroids->get(i)->image->w;
 		asteroids->get(i)->height = asteroids->get(i)->image->h;
@@ -909,9 +899,9 @@ void setupgame() {
 	for (i = SMALLASTEROID_COUNT; i < ASTEROID_COUNT; i++) {
 		
 		asteroids->create();
-		asteroids->get(i)->load(LARGE_ASTEROID_SPRITE);
-		asteroids->get(i)->load2(LARGE_ASTEROID_SPRITE2);
-		asteroids->get(i)->load3(LARGE_ASTEROID_SPRITE3);
+		asteroids->get(i)->load((BITMAP *) data[ASTEROID20_BMP].dat);
+		asteroids->get(i)->load2((BITMAP *) data[ASTEROID21_BMP].dat);
+		asteroids->get(i)->load3((BITMAP *) data[ASTEROID22_BMP].dat);
 		asteroids->get(i)->health = 3;
 		asteroids->get(i)->width = asteroids->get(i)->image->w;
 		asteroids->get(i)->height = asteroids->get(i)->image->h;
@@ -957,17 +947,40 @@ void setupgame() {
 
 int main(void)
 {
+	
 	//initialize Allegro
     allegro_init(); 
     
     //initialize the keyboard
-    install_keyboard(); 
+    install_keyboard();
     
     //initalize timer
     install_timer();
     
     //initialize random seed
     srand(time(NULL));
+    
+    //set video mode    
+    set_color_depth(16);
+    
+    // Error variable
+    int ret;
+    
+    ret = set_gfx_mode(MODE, WIDTH, HEIGHT, 0, 0);
+    if (ret != 0) {
+	    allegro_message(allegro_error);
+	    return 0;
+	}
+    
+    // Setup datafiles
+    // load the datfile
+    data = load_datafile(DATA_FILE);
+    
+    // Error checking on load
+    if (data == NULL) {
+    	allegro_message("Error loading datafile");
+	    return 0;
+    }
     
     // Setup screen
     setupscreen();
@@ -1028,8 +1041,6 @@ int main(void)
 	destroy_sample(pulse_sound);
 	delete pulse;
 	delete spaceship;
-	delete bullets;
-	delete asteroids;
     
     //end program
     allegro_exit();

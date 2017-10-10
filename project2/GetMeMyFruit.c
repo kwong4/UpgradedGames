@@ -6,6 +6,7 @@
 #include <allegro.h>
 #include "mappyal.h"
 #include "GetMeMyFruit.h"
+#include "defines.h"
 
 // Tile Grabber
 BITMAP *grabframe(BITMAP *source, int width, int height, int startx, int starty, int columns, int frame) {
@@ -216,35 +217,23 @@ void draw_startscreen() {
 // Setup initial files
 void setupscreen() {
 	
-	// Error variable
-    int ret;
-	
-    // Set video mode    
-    set_color_depth(16);
-    
-    // Graphics Error checking
-    ret = set_gfx_mode(MODE, WIDTH, HEIGHT, 0, 0);
-    if (ret != 0) {
-	    allegro_message(allegro_error);
-	    return;
-	}
-	
 	// Load title screen w/ Error checking
-	title = load_bitmap(GETMEMYFRUIT, NULL);
+	title = (BITMAP *) data[GETMEMYFRUIT_BMP].dat;
+	
 	if (!title) {
 		allegro_message("Error loading title screen");
 		return;
 	}
 	
 	// Load sound files
-	background_music = load_sample(BACKGROUND_SOUND);
-	click_sound = load_sample(CLICK_SOUND);
-	jump_sound = load_sample(JUMP_SOUND);
-	fruit_collect_sound = load_sample(FRUIT_COLLECT_SOUND);
-	enemy_die_sound = load_sample(ENEMY_SOUND);
-	game_over_sound = load_sample(GAME_OVER);
-	splash_sound = load_sample(SPLASH_SOUND);
-	game_win_sound = load_sample(GAME_WIN);
+	background_music = (SAMPLE *) data[BACKGROUND_WAV].dat;
+	click_sound = (SAMPLE *) data[CLICK_WAV].dat;
+	jump_sound = (SAMPLE *) data[BOING_WAV].dat;
+	fruit_collect_sound = (SAMPLE *) data[FANFARE_WAV].dat;
+	enemy_die_sound = (SAMPLE *) data[PLUCK_WAV].dat;
+	game_over_sound = (SAMPLE *) data[SHUT_OFF_WAV].dat;
+	splash_sound = (SAMPLE *) data[SPLASH_WAV].dat;
+	game_win_sound = (SAMPLE *) data[YAY_WAV].dat;
 	
 	//install a digital sound driver
     if (install_sound(DIGI_AUTODETECT, MIDI_NONE, "") != 0) {
@@ -285,11 +274,11 @@ void setupgame() {
 	play_sample(background_music, 128, 128, 1000, TRUE);
 	
 	//Setup Player
-	player_image[0] = load_bitmap(PLAYER_SPRITE_WAIT1, NULL);
-	player_image[1] = load_bitmap(PLAYER_SPRITE_WAIT2, NULL);
-	player_image[2] = load_bitmap(PLAYER_SPRITE_WALK1, NULL);
-	player_image[3] = load_bitmap(PLAYER_SPRITE_WALK2, NULL);
-	player_image[4] = load_bitmap(PLAYER_SPRITE_JUMP, NULL);
+	player_image[0] = (BITMAP *) data[CHARACTER_WAIT1_BMP].dat;
+	player_image[1] = (BITMAP *) data[CHARACTER_WAIT2_BMP].dat;
+	player_image[2] = (BITMAP *) data[CHARACTER_WALK1_BMP].dat;
+	player_image[3] = (BITMAP *) data[CHARACTER_WALK2_BMP].dat;
+	player_image[4] = (BITMAP *) data[CHARACTER_JUMP_BMP].dat;
 
 	// Error checking
 	if (!player_image[0] || !player_image[1] || !player_image[2] || !player_image[3] || !player_image[4]) {
@@ -310,10 +299,10 @@ void setupgame() {
     player->alive = 1;
     
     // Setup Fruit
-	fruits_image[0] = load_bitmap(ORANGE_SPRITE, NULL);
-	fruits_image[1] = load_bitmap(WATERMELON_SPRITE, NULL);
-	fruits_image[2] = load_bitmap(APPLE_SPRITE, NULL);
-	fruits_image[3] = load_bitmap(BERRIES_SPRITE, NULL);
+	fruits_image[0] = (BITMAP *) data[ORANGE_BMP].dat;
+	fruits_image[1] = (BITMAP *) data[WATERMELON_BMP].dat;
+	fruits_image[2] = (BITMAP *) data[APPLE_BMP].dat;
+	fruits_image[3] = (BITMAP *) data[BERRIES_BMP].dat;
 	
 	// Error checking
 	if (!fruits_image[0] || !fruits_image[1] || !fruits_image[2] || !fruits_image[3]) {
@@ -356,7 +345,7 @@ void setupgame() {
 	fruits[3]->alive = 1;         
     
     // Load green enemy
-    temp = load_bitmap(ENEMY1, NULL); 
+    temp = (BITMAP *) data[ENEMIES1_BMP].dat; 
     
     // Error checking
 	if (!temp) {
@@ -369,10 +358,9 @@ void setupgame() {
 	    green_enemy_image[i] = grabframe(temp, 16, 16, 0, 0, 6, i);
     	
     }
-    destroy_bitmap(temp);
     
     // Load green enemy
-    temp = load_bitmap(ENEMY2, NULL); 
+    temp = (BITMAP *) data[ENEMIES2_BMP].dat;
     
     // Error checking
 	if (!temp) {
@@ -384,10 +372,9 @@ void setupgame() {
     for (i = 0; i < 6; i++) {
 	    orange_enemy_image[i] = grabframe(temp, 16, 16, 0, 0, 6, i);
     }
-    destroy_bitmap(temp);
     
     // Load green enemy
-    temp = load_bitmap(ENEMY3, NULL); 
+    temp = (BITMAP *) data[ENEMIES3_BMP].dat;
     
     // Error checking
 	if (!temp) {
@@ -399,10 +386,9 @@ void setupgame() {
     for (i = 0; i < 6; i++) {
 	    red_enemy_image[i] = grabframe(temp, 16, 16, 0, 0, 6, i);
     }
-    destroy_bitmap(temp);
     
     // Load green enemy
-    temp = load_bitmap(ENEMY4, NULL); 
+    temp = (BITMAP *) data[ENEMIES4_BMP].dat;
     
     // Error checking
 	if (!temp) {
@@ -414,7 +400,6 @@ void setupgame() {
     for (i = 0; i < 7; i++) {
 	    blue_enemy_image[i] = grabframe(temp, 16, 16, 0, 0, 6, i);
     }
-	destroy_bitmap(temp);
 	
 	// Initalize enemies
 	green_enemy = malloc(sizeof(SPRITE));
@@ -868,6 +853,22 @@ int main(void) {
     
     //initialize random seed
     srand(time(NULL));
+    
+    // Set Video mode
+    set_color_depth(16);
+    
+    // Error variable
+    int ret;
+    
+    // Graphics Error checking
+    ret = set_gfx_mode(MODE, WIDTH, HEIGHT, 0, 0);
+    if (ret != 0) {
+	    allegro_message(allegro_error);
+	    return;
+	}
+    
+    //load the datfile
+    data = load_datafile("data.dat");
     
     // Setup screen
     setupscreen();
