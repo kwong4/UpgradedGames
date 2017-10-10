@@ -481,17 +481,52 @@ void walk(int dir) {
 // Enemy walking position and animation update
 void walk_enemies(SPRITE *enemy) {
 	
+	// Generate random number
+	int random = rand() % 30;
+	
+	if (fruit_collected > 0) {
+		if (random == 0) {
+			enemy->dir = enemy->dir * - 1;
+		}
+	}
+	
+	if (fruit_collected > 1) {
+		int xdifference = player->x - enemy->x;
+		int ydifference = player->y - enemy->y;
+		
+		if (abs(xdifference) < 75 && abs(ydifference) < 50) {
+			if (xdifference > 0) {
+				enemy->dir = 1;
+			}
+			else {
+				enemy->dir = -1;
+			}
+		}
+	}
+	
 	// Check if speed should be fast or not
 	if (hardmode == 1) {
 		enemy->x+= HARD_MODE * enemy->dir; 
 	}
 	else {
-		enemy->x+= EASY_MODE * enemy->dir; 
+		enemy->x+= EASY_MODE * enemy->dir;
+	}
+	
+	if (fruit_collected > 2) {
+		enemy->x+= enemy->dir;
 	}
     
     // Turning point of enemy movement
     if (enemy->x > enemy->max_x || enemy->x < enemy->min_x) {
     	enemy->dir = enemy->dir * -1;
+    	
+    	if (enemy->x > enemy->max_x) {
+    		enemy->x = enemy->max_x;
+    	}
+    	
+    	if (enemy->x < enemy->min_x) {
+    		enemy->x = enemy->min_x;
+    	}
     }
     
     // Frame delay animation
