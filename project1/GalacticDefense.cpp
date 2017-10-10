@@ -218,24 +218,24 @@ void warpsprite(sprite *spr) {
     int w = spr->width;
     int h = spr->height;
     
-    if (spr->x < 0-w)
+    if (spr->x < 0 - w)
     {
         spr->x = SCREEN_W;
     }
 
     else if (spr->x > SCREEN_W)
     {
-        spr->x = 0-w;
+        spr->x = 0- w;
     }
 
-    if (spr->y < 0-h)
+    if (spr->y < 16)
     {
         spr->y = SCREEN_H;
     }
 
     else if (spr->y > SCREEN_H)
     {
-        spr->y = 0-h;
+        spr->y = 0 - h;
     }
 }
 
